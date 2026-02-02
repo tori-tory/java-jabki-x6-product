@@ -1,0 +1,7 @@
+package ru.jabki.x6.product.exception;
+
+public class BadRequestException extends RuntimeException{
+    public BadRequestException(String message) {
+        super(message);
+    }
+}
