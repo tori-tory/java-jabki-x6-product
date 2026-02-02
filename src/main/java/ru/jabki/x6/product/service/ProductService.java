@@ -1,6 +1,8 @@
 package ru.jabki.x6.product.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -25,18 +27,18 @@ public class ProductService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    //@CachePut(value = "product", key = "#product.id()")
+    @CachePut(value = "product", key = "#product.id()")
     public Product update(final Product product){
         validate(product);
         final Product existProduct = getById(product.getId());
         existProduct.setName(product.getName());
         existProduct.setPrice(product.getPrice());
         productRepository.update(existProduct);
-        return getById(product.getId());
+        return existProduct;
     }
 
     @Transactional(readOnly = true)
-    //@Cacheable(value = "product", key = "#id")
+    @Cacheable(value = "product", key = "#id")
     public Product getById(final Long id) {
         return productRepository.getById(id);
     }
@@ -44,18 +46,13 @@ public class ProductService {
     @Transactional(readOnly = true)
     public boolean checkProductsExist(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return true;
+            return false;
         }
 
         Set<Long> uniqueIds = Set.copyOf(ids);
         List<Long> existingIds = productRepository.findExistingIds(List.copyOf(uniqueIds));
-        Set<Long> existingSet = Set.copyOf(existingIds);
 
-        List<Long> missingIds = uniqueIds.stream()
-                .filter(id -> !existingSet.contains(id))
-                .toList();
-
-        return missingIds.isEmpty();
+        return uniqueIds.size() == existingIds.size();
     }
 
     private void validate(final Product product) {

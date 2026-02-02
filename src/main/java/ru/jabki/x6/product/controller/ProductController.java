@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.jabki.x6.product.model.Product;
+import ru.jabki.x6.product.model.dto.ProductIdsRequest;
 import ru.jabki.x6.product.service.ProductService;
-
-import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -23,7 +22,6 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    public record ProductIdsRequest(List<Long> ids) {}
 
     @PostMapping
     @Operation(summary = "Создать товар")
